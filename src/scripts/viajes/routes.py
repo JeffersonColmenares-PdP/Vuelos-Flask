@@ -13,9 +13,15 @@ servicio_2_blueprint = Blueprint(
 
 #-----------------TABLA PAISES ------------------------------
 servicio_2_blueprint.add_url_rule(
-    "/paises-espanol",
-    view_func=controllers.cru_tabla_pais_espanol,
-    methods=["GET", "POST", "PUT"]
+    "/consulta-origen",
+    view_func=controllers.obtener_origen,
+    methods=["GET"]
+)
+
+servicio_2_blueprint.add_url_rule(
+    "/consulta-destino",
+    view_func=controllers.obtener_destino,
+    methods=["GET"]
 )
 
 #----------------TABLA TRADUCCIONES -------------------------------

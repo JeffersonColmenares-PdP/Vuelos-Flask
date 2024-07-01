@@ -1,4 +1,4 @@
-""" Queries del servicio 1 """
+""" Queries del servicio 2 """
 
 from src.scripts.connection import Connection
 
@@ -6,52 +6,49 @@ from src.scripts.connection import Connection
 class Query(Connection):
     """ > The Query class is a subclass of the Connection class """
 
-    def buscar_tabla_pais_espanol(self, page:int, page_size: int):
+    def buscar_origenes(self, nombre:str):
         
-        offset = (page - 1) * page_size # filas que no se tienen en cuenta para mostrar
-
-        # Consulta para obtener el número total de registros
-        total_query = "SELECT COUNT(*) FROM tabla_pais_espanol"
-
         query = f"""
-            SELECT * FROM tabla_pais_espanol ORDER BY id_paises ASC
-            LIMIT {page_size} OFFSET {offset} 
+            SELECT DISTINCT(Origen) FROM tbl_vuelos
+            WHERE Origen LIKE '%{nombre}%'
+            ORDER BY Origen ASC;
         """
 
         # contextos de python
         with self._open_connection() as conn:
             with conn.cursor() as cursor:
-                cursor.execute(total_query)
-                total = cursor.fetchone()[0]
-                
                 cursor.execute(query)
                 response = cursor.fetchall()
                 columnas = [columna.name for columna in cursor.description or []]
-
-                print(response)
-                print(cursor.description)
-
-                columnas = [columna.name for columna in cursor.description or []]
-
-                # objeto_pk = []
-                # for tupla in response:
-                #     obj = {}
-                #     for index, item in enumerate(tupla):
-                #         obj[columnas[index]] = item
-                #     objeto_pk.append(obj)
-                objeto_pais_espanol = [
+                # almacenar como json
+                objeto_origen = [
                     {columnas[index]: item for index, item in enumerate(tupla)}
                     for tupla in response
                 ]
 
-                print(objeto_pais_espanol)
+                return objeto_origen
+            
+    def buscar_destino(self, nombre:str):
+        
+        query = f"""
+            SELECT DISTINCT(destino) FROM tbl_vuelos
+            WHERE destino LIKE '%{nombre}%'
+            ORDER BY destino ASC;
+        """
 
-                respuesta = {
-                    "total": total,
-                    "objeto_pais_espanol": objeto_pais_espanol
-                }
+        # contextos de python
+        with self._open_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query)
+                response = cursor.fetchall()
+                columnas = [columna.name for columna in cursor.description or []]
+                # almacenar como json
+                objeto_destino = [
+                    {columnas[index]: item for index, item in enumerate(tupla)}
+                    for tupla in response
+                ]
 
-                return respuesta
+                return objeto_destino
 
     def buscar_tabla_nombre_pais_traducciones(self, page:int, page_size: int):
 

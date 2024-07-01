@@ -2,12 +2,9 @@
 
 from flask import Blueprint
 from src.scripts import logs
-from src.scripts.rickandmorty.routes import servicio_1_blueprint 
-from src.scripts.paises.routes import servicio_2_blueprint
+from src.scripts.viajes.routes import servicio_2_blueprint
 
 base_blueprint = Blueprint("base_blueprint", __name__)
-
-base_blueprint.register_blueprint(servicio_1_blueprint)
 
 base_blueprint.register_blueprint(servicio_2_blueprint)
 
