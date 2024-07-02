@@ -5,9 +5,9 @@
 from flask import request
 import psycopg2
 
+from datetime import datetime, timedelta
 from .queries import Query
 
-#-----------------TABLA PAISES ------------------------------
 def obtener_origen():
     try:
         origen = request.args.get('nombre', type=str)
@@ -54,240 +54,98 @@ def obtener_destino():
         "obj": results,
     }
 
-def agregar_pais_espanol():
+def listado_vuelos_sin_escala():
     try:
-        entrada = request.json
-    except Exception as exc:
-        return {"msg": str(exc), "codigo": 0, "status": False, "obj": {}}
-    
-    try:
+        # Intentamos obtener los datos de origen y destino de una solicitud (request)
+        origen = request.args.get('origen', type=str)
+        destino = request.args.get('destino', type=str)
         
-        Query().agregar_pais_espanol(entrada)
-    except psycopg2.Error as db_error:
-        return {
-            "msg": f"DB error: {str(db_error)}",
-            "codigo": 0,
-            "status": False,
-            "obj": {},
-        }
-    except Exception as exc:
-        return {"msg": str(exc), "codigo": 0, "status": False, "obj": {}}
-
-    return {
-        "msg": "Se agrego satisfactoriamente",
-        "codigo": 0,
-        "status": True,
-        "obj": {},
-    }
-
-def actualizar_pais_espanol():
-    try:
-        entrada = request.json
-        if "id_paises" not in entrada:
-            return {"msg": "El id_paises es obligatorio", "codigo": 0, "status": False, "obj": {}}
-    except Exception as exc:
-        return {"msg": str(exc), "codigo": 0, "status": False, "obj": {}}
-    
-    try:
+        # Convertimos los nombres de origen y destino a mayúsculas
+        origen_up = origen.upper()
+        destino_up = destino.upper()
         
-            Query().actualizar_pais_espanol(entrada)
-    except psycopg2.Error as db_error:
-        return {
-            "msg": f"DB error: {str(db_error)}",
-            "codigo": 0,
-            "status": False,
-            "obj": {},
-        }
-    except Exception as exc:
-        return {"msg": str(exc), "codigo": 0, "status": False, "obj": {}}
-
-    return {
-        "msg": "Se actualizo satisfactoriamente",
-        "codigo": 0,
-        "status": True,
-        "obj": {},
-    }
-
-#----------------TABLA TRADUCCIONES -------------------------------
-def obtener_tabla_nombre_pais_traducciones():
-    try:
-        page = request.args.get('page', type=int)
-        page_size = request.args.get('page_size', type=int)
-
-        results = Query().buscar_tabla_nombre_pais_traducciones(page=page, page_size=page_size)
-
-    except psycopg2.Error as db_error:
-        return {
-            "msg": f"DB error: {str(db_error)}",
-            "codigo": 0,
-            "status": False,
-            "obj": {},
-        }
-    except Exception as exc:
-        return {"msg": str(exc), "codigo": 0, "status": False, "obj": {}}
-
-    return {
-        "msg": "Consulta satisfactoria",
-        "codigo": 0,
-        "status": True,
-        "obj": results,
-    }
-
-def agregar_pais_traducciones():
-    try:
-        entrada = request.json
-    except Exception as exc:
-        return {"msg": str(exc), "codigo": 0, "status": False, "obj": {}}
-    
-    try:
+        # Creamos dos listas vacías para almacenar los vuelos intermedios y finales
+        vuelos_intermedios = []
+        vuelos_finales = []
         
-        Query().agregar_pais_traducciones(entrada)
-    except psycopg2.Error as db_error:
-        return {
-            "msg": f"DB error: {str(db_error)}",
-            "codigo": 0,
-            "status": False,
-            "obj": {},
-        }
-    except Exception as exc:
-        return {"msg": str(exc), "codigo": 0, "status": False, "obj": {}}
-
-    return {
-        "msg": "Se agrego satisfactoriamente",
-        "codigo": 0,
-        "status": True,
-        "obj": {},
-    }
-
-def actualizar_pais_traducciones():
-    try:
-        entrada = request.json
-        if "id_traduccion" not in entrada:
-            return {"msg": "El id_traduccion es obligatorio", "codigo": 0, "status": False, "obj": {}}
-    except Exception as exc:
-        return {"msg": str(exc), "codigo": 0, "status": False, "obj": {}}
-    
-    try:
-
-            Query().actualizar_pais_traducciones(entrada)
-    except psycopg2.Error as db_error:
-        return {
-            "msg": f"DB error: {str(db_error)}",
-            "codigo": 0,
-            "status": False,
-            "obj": {},
-        }
-    except Exception as exc:
-        return {"msg": str(exc), "codigo": 0, "status": False, "obj": {}}
-
-    return {
-        "msg": "Se actualizo satisfactoriamente",
-        "codigo": 0,
-        "status": True,
-        "obj": {},
-    }
-
-def cru_tabla_nombre_pais_traducciones():
-    if request.method == "GET":
-        return obtener_tabla_nombre_pais_traducciones()
-    if request.method == "POST":
-        return agregar_pais_traducciones()
-    if request.method == "PUT":
-        return actualizar_pais_traducciones()
-
-#--------------TABLA FRONTERAS ---------------------------------
-def obtener_tabla_fronteras():
-    try:
-        page = request.args.get('page', type=int)
-        page_size = request.args.get('page_size', type=int)
-
-        results = Query().buscar_tabla_fronteras(page=page, page_size=page_size)
-    except psycopg2.Error as db_error:
-        return {
-            "msg": f"DB error: {str(db_error)}",
-            "codigo": 0,
-            "status": False,
-            "obj": {},
-        }
-    except Exception as exc:
-        return {"msg": str(exc), "codigo": 0, "status": False, "obj": {}}
-
-    return {
-        "msg": "Consulta satisfactoria",
-        "codigo": 0,
-        "status": True,
-        "obj": results,
-    }
-
-def agregar_fronteras():
-    try:
-        entrada = request.json
-    except Exception as exc:
-        return {"msg": str(exc), "codigo": 0, "status": False, "obj": {}}
-    
-    try:       
-        Query().agregar_fronteras(entrada)
-    except psycopg2.Error as db_error:
-        return {
-            "msg": f"DB error: {str(db_error)}",
-            "codigo": 0,
-            "status": False,
-            "obj": {},
-        }
-    except Exception as exc:
-        return {"msg": str(exc), "codigo": 0, "status": False, "obj": {}}
-
-    return {
-        "msg": "Se agrego satisfactoriamente",
-        "codigo": 0,
-        "status": True,
-        "obj": {},
-    }
-
-def actualizar_tabla_fronteras():
-    try:
-        entrada = request.json
-        if "id_frontera" not in entrada:
-            return {"msg": "El id_frontera es obligatorio", "codigo": 0, "status": False, "obj": {}}
-    except Exception as exc:
-        return {"msg": str(exc), "codigo": 0, "status": False, "obj": {}}
-    
-    try:
-
-            Query().actualizar_tabla_fronteras(entrada)
-    except psycopg2.Error as db_error:
-        return {
-            "msg": f"DB error: {str(db_error)}",
-            "codigo": 0,
-            "status": False,
-            "obj": {},
-        }
-    except Exception as exc:
-        return {"msg": str(exc), "codigo": 0, "status": False, "obj": {}}
-
-    return {
-        "msg": "Se actualizo satisfactoriamente",
-        "codigo": 0,
-        "status": True,
-        "obj": {},
-    }
-
-def cru_tabla_fronteras():
-    if request.method == "GET":
-        return obtener_tabla_fronteras()
-    if request.method == "POST":
-        return agregar_fronteras()
-    if request.method == "PUT":
-        return actualizar_tabla_fronteras()
-    
-
-#----------------TABLA UNION PAISES FRONTERAS -------------------------------
-def obtener_union_pais_fronteras():
-    try:
-        page = request.args.get('page', type=int)
-        page_size = request.args.get('page_size', type=int)
-
-        results = Query().buscar_union_pais_fronteras(page=page, page_size=page_size)
+        # Buscamos vuelos directos entre el origen y el destino
+        results = Query().buscar_vuelos_sin_escala(nom_origen=origen_up, nom_destino=destino_up)
+        
+        # Si no encontramos vuelos directos, buscamos vuelos con escala
+        if results == []:
+            results = Query().validacion_vuelos_con_escala(nom_origen=origen_up, nom_destino=destino_up)
+            
+            # Si encontramos vuelos con escala, procedemos a buscar los vuelos intermedios y finales
+            if results != []:
+                for result in results:
+                    # Buscamos vuelos entre el origen y la escala intermedia
+                    intermedio = Query().buscar_vuelos_sin_escala(nom_origen=origen_up, nom_destino=result["origen"])
+                    vuelos_intermedios.extend(intermedio)  # Agregamos los vuelos intermedios a la lista
+                
+                    # Buscamos vuelos entre la escala intermedia y el destino
+                    final = Query().buscar_vuelos_sin_escala(nom_origen=result["origen"], nom_destino=destino_up)
+                    vuelos_finales.extend(final)  # Agregamos los vuelos finales a la lista
+                
+                # Creamos un objeto que contiene las listas de vuelos intermedios y finales
+                obj = {
+                    "vuelos_intermedios": vuelos_intermedios,
+                    "vuelos_finales": vuelos_finales
+                }
+                
+                # Extraemos las listas de vuelos intermedios y finales del objeto
+                vuelos_intermedios = obj['vuelos_intermedios']
+                vuelos_finales = obj['vuelos_finales']
+                
+                # Creamos una lista vacía para almacenar las combinaciones de vuelos
+                combinaciones = []
+                
+                # Iteramos sobre cada vuelo intermedio para buscar vuelos finales válidos
+                for vuelo_intermedio in vuelos_intermedios:
+                    # Obtenemos la hora de salida del vuelo intermedio y la convertimos a formato datetime
+                    hora_intermedia_str = vuelo_intermedio["hora"]
+                    hora_intermedia_dt = datetime.strptime(hora_intermedia_str, "%H:%M:%S")
+                    
+                    # Calculamos la duración del vuelo intermedio y la sumamos a la hora de llegada estimada
+                    duracion_intermedia_td = timedelta(hours=int(vuelo_intermedio["duracion"].split(':')[0]), minutes=int(vuelo_intermedio["duracion"].split(':')[1]))
+                    llegada_intermedia_dt = hora_intermedia_dt + duracion_intermedia_td
+                    
+                    # Filtramos los vuelos finales válidos que salen después de la llegada del vuelo intermedio
+                    vuelos_finales_validos = []
+                    for vuelo_final in vuelos_finales:
+                        if vuelo_intermedio["destino"] == vuelo_final["origen"]:
+                            # Convertimos la hora de salida del vuelo final a formato datetime
+                            hora_vuelo_final = datetime.strptime(vuelo_final["hora"], "%H:%M:%S")
+                            
+                            # Si la hora de salida del vuelo final es posterior a la llegada del vuelo intermedio, lo agregamos a los vuelos finales válidos
+                            if hora_vuelo_final > llegada_intermedia_dt:
+                                vuelos_finales_validos.append(vuelo_final)
+                    
+                    # Ordenamos los vuelos finales válidos por hora de salida y seleccionamos el siguiente vuelo más cercano
+                    vuelos_finales_validos.sort(key=lambda x: datetime.strptime(x["hora"], "%H:%M:%S"))
+                    if vuelos_finales_validos:
+                        vuelo_final_seleccionado = vuelos_finales_validos[0]
+                        
+                        # Calculamos la duración del vuelo final y la duración total combinada
+                        duracion_final_td = timedelta(hours=int(vuelo_final_seleccionado["duracion"].split(':')[0]), minutes=int(vuelo_final_seleccionado["duracion"].split(':')[1]))
+                        duracion_total_td = duracion_intermedia_td + duracion_final_td
+                        
+                        # Agregamos la combinación de vuelos a la lista de combinaciones
+                        combinaciones.append({
+                            "origen": vuelo_intermedio["origen"],
+                            "destino": vuelo_final_seleccionado["destino"],
+                            "ciudad_intermedia": vuelo_intermedio["destino"],
+                            "hora_ciudad_intermedia": vuelo_intermedio["hora"],
+                            "duracion_ciudad_intermedia": vuelo_intermedio["duracion"],
+                            "precio_ciudad_intermedia": vuelo_intermedio["precio"],
+                            "hora_ciudad_destino": vuelo_final_seleccionado["hora"],
+                            "duracion_ciudad_destino": vuelo_final_seleccionado["duracion"],
+                            "precio_ciudad_destino": vuelo_final_seleccionado["precio"],
+                            "total_vuelo": vuelo_intermedio["precio"] + vuelo_final_seleccionado["precio"],
+                            "duracion_total": str(duracion_total_td)
+                        })
+                
+                # Asignamos las combinaciones encontradas a la variable results
+                results = combinaciones
     except psycopg2.Error as db_error:
         return {
             "msg": f"DB error: {str(db_error)}",
@@ -304,55 +162,3 @@ def obtener_union_pais_fronteras():
         "status": True,
         "obj": results,
     }
-
-def agregar_pais_frontera():
-    try:
-        entrada = request.json
-    except Exception as exc:
-        return {"msg": str(exc), "codigo": 0, "status": False, "obj": {}}
-    
-    try:
-        Query().insertar_frontera_pais(entrada.get("nombre_paises"), entrada.get("nombre_frontera"))
-    except psycopg2.Error as db_error:
-        return {
-            "msg": f"DB error: {str(db_error)}",
-            "codigo": 0,
-            "status": False,
-            "obj": {},
-        }
-    except Exception as exc:
-        return {"msg": str(exc), "codigo": 0, "status": False, "obj": {}}
-
-    return {
-        "msg": "Se agrego satisfactoriamente",
-        "codigo": 0,
-        "status": True,
-        "obj": {},
-    }
-
-def obtener_buscar_pais_fronteras():
-    try:
-        results = Query().buscar_pais_fronteras()
-    except psycopg2.Error as db_error:
-        return {
-            "msg": f"DB error: {str(db_error)}",
-            "codigo": 0,
-            "status": False,
-            "obj": {},
-        }
-    except Exception as exc:
-        return {"msg": str(exc), "codigo": 0, "status": False, "obj": {}}
-
-    return {
-        "msg": "Consulta satisfactoria",
-        "codigo": 0,
-        "status": True,
-        "obj": results,
-    }
-
-def cru_union_pais_fronteras():
-    if request.method == "GET":
-        return obtener_union_pais_fronteras()
-    if request.method == "POST":
-        return agregar_pais_frontera()
-

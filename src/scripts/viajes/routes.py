@@ -24,30 +24,8 @@ servicio_2_blueprint.add_url_rule(
     methods=["GET"]
 )
 
-#----------------TABLA TRADUCCIONES -------------------------------
 servicio_2_blueprint.add_url_rule(
-    "/nombre-pais-traducciones",
-    view_func=controllers.cru_tabla_nombre_pais_traducciones,
-    methods=["GET", "POST", "PUT"]
-)
-
-#--------------TABLA FRONTERAS ---------------------------------
-servicio_2_blueprint.add_url_rule(
-    "/fronteras",
-    view_func=controllers.cru_tabla_fronteras,
-    methods=["GET", "POST", "PUT"]
-)
-
-
-#----------------TABLA UNION PAISES FRONTERAS -------------------------------
-servicio_2_blueprint.add_url_rule(
-    "/union-pais-fronteras",
-    view_func=controllers.cru_union_pais_fronteras,
-    methods=["GET", "POST"]
-)
-
-servicio_2_blueprint.add_url_rule(
-    "/buscar-pais-frontera",
-    view_func=controllers.obtener_buscar_pais_fronteras,
+    "/buscar-vuelos-sin-escala",
+    view_func=controllers.listado_vuelos_sin_escala,
     methods=["GET"]
 )
