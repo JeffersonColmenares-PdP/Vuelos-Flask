@@ -1,7 +1,7 @@
 """ Queries del servicio 2 """
 
 from src.scripts.connection import Connection
-
+from datetime import time
 
 class Query(Connection):
     """ > The Query class is a subclass of the Connection class """
