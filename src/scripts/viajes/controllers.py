@@ -125,9 +125,12 @@ def listado_vuelos_sin_escala():
                     if vuelos_finales_validos:
                         vuelo_final_seleccionado = vuelos_finales_validos[0]
                         
-                        # Calculamos la duración del vuelo final y la duración total combinada
+                        # Calculamos la duración del vuelo final
                         duracion_final_td = timedelta(hours=int(vuelo_final_seleccionado["duracion"].split(':')[0]), minutes=int(vuelo_final_seleccionado["duracion"].split(':')[1]))
-                        duracion_total_td = duracion_intermedia_td + duracion_final_td
+                        
+                        # Calculamos la duración total del trayecto, sumando la diferencia entre la salida del primer vuelo y la salida del segundo vuelo, y la duración del segundo vuelo
+                        tiempo_espera_td = datetime.strptime(vuelo_final_seleccionado["hora"], "%H:%M:%S") - hora_intermedia_dt
+                        duracion_total_td = tiempo_espera_td + duracion_final_td
                         
                         # Agregamos la combinación de vuelos a la lista de combinaciones
                         combinaciones.append({
